@@ -1,5 +1,6 @@
+##
 ##This is a project completed for the Udacity Data Analyst Nanodegree. 
-##Most code is drawn from my answers to problem sets 2-4 in the Intro to Data Science course.
+##Most code is drawn from the problem sets 2-4 in the Intro to Data Science course.
 ##Other is drawn from the seaborn documentation linked on the Anaconda page, found here:
 ##	http://stanford.edu/~mwaskom/software/seaborn/ and
 ##	http://stanford.edu/~mwaskom/software/seaborn/tutorial.html
@@ -18,21 +19,18 @@ import scipy
 import scipy.stats
 import statsmodels.api as sm
 
+
 datastuff = '/Users/Casey/miniconda3/envs/datagraphics/bin/Programs/turnstile_weather_v2.csv'
-
-def read_file(csv_file):
-	df = pandas.read_csv(csv_file) #makes a dataframe
-	return df
-
+df = pandas.read_csv(datastuff) #makes a dataframe
 
 def stat_stuff(turnstile_weather):
 	#perform statistical operations based on my answers to problem set 3
-	wrain = turnstile_weather['ENTRIESn_hourly'][turnstile_weather['rain'] == 1]
-	woutrain = turnstile_weather['ENTRIESn_hourly'][turnstile_weather['rain'] == 0]
-	with_rain_mean = numpy.mean(wrain)
-	without_rain_mean = numpy.mean(woutrain)
+	rmean = turnstile_weather['ENTRIESn_hourly'][turnstile_weather['rain'] == 1]
+	nmean = turnstile_weather['ENTRIESn_hourly'][turnstile_weather['rain'] == 0]
+	with_rain_mean = numpy.mean(rmean)
+	without_rain_mean = numpy.mean(nmean)
 	
-	results = scipy.stats.mannwhitneyu(wrain, woutrain, use_continuity=True)
+	results = scipy.stats.mannwhitneyu(rmean, nmean, use_continuity=True)
 	
 	U = results[0]
 	p = results[1]
@@ -55,9 +53,9 @@ def predictions(df):
 	dummy_unit = pandas.get_dummies(df['UNIT'], prefix='unit')
 	dummy_conds = pandas.get_dummies(df["conds"], prefix="condi")
 	dummy_station = pandas.get_dummies(df["station"], prefix="Station")
-	features = features.join(dummy_unit)
-	features = features.join(dummy_conds)
-	features = features.join(dummy_station)
+	dummies = pandas.concat(dummy_conds, dummy_station, dummy_unit)
+	features = features.join(dummies)
+
 	# Values
 	values = df['ENTRIESn_hourly']
 	# Perform linear regression - do not call OLS regression again in main! it is already here
